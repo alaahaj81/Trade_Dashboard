@@ -36,6 +36,7 @@
             <th>52-Week Low</th>
             <th>Market Cap</th>
             <th>Alert</th>
+            <th>More Info</th>
             <th>Remove</th>
         </tr>
         <tbody id="stock-table"></tbody>
@@ -63,32 +64,6 @@
             fetchStockData();
         }
         
-        function getTradeAlert(data) {
-            let alertMessage = "No Signal";
-            let price = parseFloat(data["05. price"] || 0);
-            let rsi = parseFloat(data["RSI"] || 50);
-            let vwap = parseFloat(data["VWAP"] || price);
-            let relVolume = parseFloat(data["RelVolume"] || 1);
-
-            if (rsi < 30 && price > vwap && relVolume > 1.5) {
-                alertMessage = "🔵 Buy Signal";
-            } else if (rsi > 70 || price < vwap) {
-                alertMessage = "🔴 Sell Signal";
-            }
-            
-            if (alertMessage !== "No Signal") {
-                alert(`🚀 Trade Alert for ${data["01. symbol"]}: ${alertMessage}`);
-                sendWhatsAppAlert(data["01. symbol"], alertMessage);
-            }
-            return alertMessage;
-        }
-        
-        async function sendWhatsAppAlert(symbol, message) {
-            const phoneNumber = "YOUR_WHATSAPP_NUMBER";
-            const encodedMessage = encodeURIComponent(`Trade Alert for ${symbol}: ${message}`);
-            window.open(`https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`, '_blank');
-        }
-        
         async function fetchStockData() {
             const tableBody = document.getElementById("stock-table");
             const errorMessage = document.getElementById("error-message");
@@ -103,8 +78,6 @@
                     }
                     
                     let data = response.data["Global Quote"];
-                    let alertMessage = getTradeAlert(data);
-                    
                     let row = `<tr>
                         <td>${symbol}</td>
                         <td>${data["05. price"] ?? 'N/A'}</td>
@@ -115,7 +88,8 @@
                         <td>${data["03. high"] ?? 'N/A'}</td>
                         <td>${data["04. low"] ?? 'N/A'}</td>
                         <td>${data["08. market cap"] ?? 'N/A'}</td>
-                        <td class='alert'>${alertMessage}</td>
+                        <td class='alert'>No Signal</td>
+                        <td><button onclick="window.open('https://www.tradingview.com/symbols/${symbol}/', '_blank')">More Info</button></td>
                         <td><button onclick="removeStock('${symbol}')">Remove</button></td>
                     </tr>`;
                     tableBody.innerHTML += row;
@@ -131,3 +105,4 @@
     </script>
 </body>
 </html>
+
